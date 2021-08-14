@@ -1,3 +1,5 @@
-import ErpAgent from './src/ErpAgent';
+import DormAgent from './src/core/DormAgent';
 
-new ErpAgent('g', 'g').getFees().then(console.log);
+const agent = new DormAgent('g', 'g');
+
+agent.getResidentInfo().then(console.log);

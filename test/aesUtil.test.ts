@@ -1,4 +1,4 @@
-import AES_Encode from '../src/dirty/aesUtil';
+import AES_Encode from '../src/core/dirty/aesUtil';
 
 describe('aesUtil', () => {
   it('끝에 줄바꿈이 들어가야 한다.', async () => {
