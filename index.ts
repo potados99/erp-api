@@ -1,5 +1,3 @@
-import DormAgent from './src/core/DormAgent';
+import startServer from './src/server/server';
 
-const agent = new DormAgent('g', 'g');
-
-agent.getResidentInfo().then(console.log);
+startServer();

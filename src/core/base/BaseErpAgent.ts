@@ -33,31 +33,10 @@ export default abstract class BaseErpAgent {
   });
 
   /**
-   * 통합정보 시스템에 보내는 요청을 래핑해줍니다.
-   *
-   * 응답을 뜯어서 문제가 생기면 알리거나 로그인을 대신 해주거나 합니다.
-   * @param request 요청 보내는 함수. axios 호출 결과를 반환하면 됨.
-   * @param retry 몇 번째 재시도인지 나타내는 숫자. 특정 횟수 초과하면 뻗음.
+   * 직접 로그인합니다.
+   * 본격적으로 요청을 보내기 전에 계정의 유효성을 알고 싶을 때에 사용합니다.
    */
-  protected async erpRequest(request: () => Promise<AxiosResponse>, retry: number = 0): Promise<AxiosResponse> {
-    assert(retry < 3, new Error('확인좀 해보세요!'));
-
-    const response = await request();
-
-    const needLogin = typeof response.data === 'string' && response.data.includes('<Parameter id="ErrorCode" type="int">-600</Parameter>');
-    const ok = typeof response.data === 'string' && response.data.startsWith('SSV:');
-
-    if (needLogin) {
-      await this.signIn();
-      return await this.erpRequest(request, retry + 1);
-    } else if (!ok) {
-      throw new Error(`요청 실패했습니다. 응답: ${response.data}`);
-    }
-
-    return response;
-  }
-
-  private async signIn() {
+  async signIn() {
     console.log('먼저 포탈에 로그인합니다..');
     await this.signInPortal();
 
@@ -106,5 +85,30 @@ export default abstract class BaseErpAgent {
 
   private async signInErp() {
     await this.agent.get('http://erp.inu.ac.kr:8881/com/SsoCtr/initPageWork.do?loginGbn=sso'); // 프로토콜과 포트까지 다 이유가 있음.
+  }
+
+  /**
+   * 통합정보 시스템에 보내는 요청을 래핑해줍니다.
+   *
+   * 응답을 뜯어서 문제가 생기면 알리거나 로그인을 대신 해주거나 합니다.
+   * @param request 요청 보내는 함수. axios 호출 결과를 반환하면 됨.
+   * @param retry 몇 번째 재시도인지 나타내는 숫자. 특정 횟수 초과하면 뻗음.
+   */
+  protected async erpRequest(request: () => Promise<AxiosResponse>, retry: number = 0): Promise<AxiosResponse> {
+    assert(retry < 3, new Error('확인좀 해보세요!'));
+
+    const response = await request();
+
+    const needLogin = typeof response.data === 'string' && response.data.includes('<Parameter id="ErrorCode" type="int">-600</Parameter>');
+    const ok = typeof response.data === 'string' && response.data.startsWith('SSV:');
+
+    if (needLogin) {
+      await this.signIn();
+      return await this.erpRequest(request, retry + 1);
+    } else if (!ok) {
+      throw new Error(`요청 실패했습니다. 응답: ${response.data}`);
+    }
+
+    return response;
   }
 }
