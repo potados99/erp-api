@@ -72,5 +72,5 @@ export default function startServer() {
 
   console.log('서버 시작합니다.');
 
-  app.listen(10000);
+  app.listen(process.env.PORT);
 }
